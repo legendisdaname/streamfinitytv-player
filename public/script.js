@@ -27,12 +27,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Determine if the URL points to an M3U file by its extension
     if (/\.m3u8?$|\.m3u$/i.test(url)) {
       try {
-        const playlistText = await fetchPlaylist(url);
-        channels = parseM3U(playlistText);
-        if (channels.length === 0) {
-          // If parsing fails, treat as a single stream
-          channels = [{ name: url, url }];
+        // Ask the backend to fetch and parse the playlist into JSON. This avoids
+        // heavy parsing work on the UI thread and keeps the interface responsive.
+        const encoded = encodeURIComponent(url);
+        const resp = await fetch(`/api/playlistjson?url=${encoded}`);
+        if (!resp.ok) {
+          throw new Error(`Failed to load playlist: ${resp.statusText}`);
         }
+        const list = await resp.json();
+        channels = Array.isArray(list) && list.length > 0 ? list : [{ name: url, url }];
       } catch (err) {
         console.error(err);
         channels = [{ name: url, url }];
