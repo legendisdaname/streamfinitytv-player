@@ -122,25 +122,55 @@ document.addEventListener('DOMContentLoaded', () => {
    * lowercase search query.
    * @param {string} [filter=''] - Lowercase search string to filter channel names
    */
+  /**
+   * Render the channel list to the sidebar. This implementation
+   * uses incremental DOM updates in batches to keep the UI responsive
+   * even with very large playlists. A loading message is displayed
+   * while channels are being added.
+   *
+   * @param {string} [filter=''] - Lowercase search string to filter channel names
+   */
   function renderChannelList(filter = '') {
-    channelListUl.innerHTML = '';
-    const fragment = document.createDocumentFragment();
-    channels.forEach((chan, index) => {
-      if (filter && !chan.name.toLowerCase().includes(filter)) return;
-      const li = document.createElement('li');
-      li.textContent = chan.name;
-      li.dataset.index = String(index);
-      if (index === currentPlayingIndex) {
-        li.classList.add('active');
+    // Show a loading message while we build the list
+    channelListUl.textContent = 'Loading channels…';
+    // Determine which channel indices match the filter
+    const filteredIndices = [];
+    const lowerFilter = filter.toLowerCase();
+    channels.forEach((chan, idx) => {
+      if (!lowerFilter || chan.name.toLowerCase().includes(lowerFilter)) {
+        filteredIndices.push(idx);
       }
-      li.addEventListener('click', () => playChannel(index));
-      fragment.appendChild(li);
     });
-    channelListUl.appendChild(fragment);
-    // Auto play first visible channel if none is playing yet
-    if (channels.length > 0 && currentPlayingIndex === null) {
-      playChannel(0);
+    // Reset the list and start incremental rendering
+    channelListUl.innerHTML = '';
+    let pointer = 0;
+    const batchSize = 100;
+    function addBatch() {
+      const fragment = document.createDocumentFragment();
+      for (let i = 0; i < batchSize && pointer < filteredIndices.length; i++, pointer++) {
+        const idx = filteredIndices[pointer];
+        const chan = channels[idx];
+        const li = document.createElement('li');
+        li.textContent = chan.name;
+        li.dataset.index = String(idx);
+        if (idx === currentPlayingIndex) {
+          li.classList.add('active');
+        }
+        li.addEventListener('click', () => playChannel(idx));
+        fragment.appendChild(li);
+      }
+      channelListUl.appendChild(fragment);
+      if (pointer < filteredIndices.length) {
+        // Schedule the next batch so the UI can update in between
+        setTimeout(addBatch, 0);
+      } else {
+        // After finishing, auto-play the first visible channel if none is playing
+        if (filteredIndices.length > 0 && currentPlayingIndex === null) {
+          playChannel(filteredIndices[0]);
+        }
+      }
     }
+    addBatch();
   }
 
   /**
