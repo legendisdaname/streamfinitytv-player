@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StreamfinityTV Player</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <header>
+      <h1>StreamfinityTV Player</h1>
+    </header>
+    <main>
+      <section class="input-section">
+        <div class="input-group">
+          <label for="m3u-url">Enter M3U/stream URL:</label>
+          <input
+            type="url"
+            id="m3u-url"
+            placeholder="https://example.com/playlist.m3u"
+          />
+          <button id="load-url">Load URL</button>
+        </div>
+        <div class="input-group">
+          <label for="file-input">Or select local M3U file:</label>
+          <input
+            type="file"
+            id="file-input"
+            accept=".m3u,.m3u8"
+          />
+        </div>
+      </section>
+      <section class="player-section">
+        <aside id="channel-list">
+          <input
+            type="text"
+            id="search-channels"
+            placeholder="Search channels..."
+          />
+          <ul id="channels-ul"></ul>
+        </aside>
+        <div class="video-container">
+          <video id="video-player" controls preload="metadata">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>© 2025 StreamfinityTV Player. All rights reserved.</p>
+    </footer>
+    <script src="script.js"></script>
+  </body>
+</html>
