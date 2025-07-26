@@ -1,0 +1,14 @@
+{
+  "name": "streamfinitytv-player",
+  "version": "1.0.0",
+  "description": "StreamfinityTV Player: Web-based IPTV player with Node.js backend for remote playlist fetching.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.4",
+    "node-fetch": "^3.3.2"
+  }
+}
